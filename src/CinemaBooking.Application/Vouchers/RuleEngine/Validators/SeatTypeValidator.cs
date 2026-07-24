@@ -19,7 +19,7 @@ public sealed class SeatTypeValidator : IVoucherRuleValidator
         {
             return ValidationResult.Failure(
                 RuleType,
-                "Booking has no seats.");
+                "This voucher requires seat selection and cannot be applied to F&B-only orders.");
         }
 
         var invalidSeats = seats

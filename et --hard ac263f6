@@ -1,0 +1,85 @@
+[33mac263f6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mHoangDevNguVer3[m[33m, [m[1;31morigin/HoangDevNguVer3[m[33m)[m HEAD@{0}: commit: Fixed Movie/Room voucher validation
+[33m5a03909[m HEAD@{1}: commit: Fix DayofWeek rule for voucher in FnB Booking
+[33mf58f46c[m HEAD@{2}: commit: Fixed cinema voucher validation for staff F&B-only bookings
+[33ma2f9a80[m HEAD@{3}: commit: Updated lookup user API
+[33m2eaeb01[m HEAD@{4}: commit: Updated RedeemableVoucher API
+[33m7b89d7d[m HEAD@{5}: commit: Updated MyVoucher API
+[33mf5c221b[m HEAD@{6}: commit: Fixed Review module
+[33m36b13e1[m HEAD@{7}: commit: Fixed duplicated vouchers in UserLookupAPI
+[33m409ffb7[m[33m ([m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m HEAD@{8}: checkout: moving from dev to HoangDevNguVer3
+[33m409ffb7[m[33m ([m[1;31morigin/dev[m[33m, [m[1;32mdev[m[33m)[m HEAD@{9}: pull: Fast-forward
+[33me3ddbaa[m HEAD@{10}: checkout: moving from HoangDevNguVer2 to dev
+[33m77d6fb8[m[33m ([m[1;31morigin/HoangDevNguVer2[m[33m, [m[1;32mHoangDevNguVer2[m[33m)[m HEAD@{11}: commit: Merged duplicated voucher
+[33m231cff6[m HEAD@{12}: commit: Added rules for MyVoucher API
+[33m9da29ff[m HEAD@{13}: commit: Updated LoyaltyPoint prediction in MyBooking API
+[33m13d6a16[m HEAD@{14}: commit: Refactor Review + Loyalty Module
+[33md975043[m HEAD@{15}: commit: Before moving purchase loyalty reward from Paid to Used
+[33mf811c32[m HEAD@{16}: commit: Added List movie by PersonId API
+[33mc9297b2[m HEAD@{17}: commit: Added Rules in Redeemable API
+[33m74d5c05[m HEAD@{18}: commit: Added new API for Review Module
+[33me3ddbaa[m HEAD@{19}: checkout: moving from dev to HoangDevNguVer2
+[33me3ddbaa[m HEAD@{20}: pull: Fast-forward
+[33m1050fd7[m[33m ([m[1;31morigin/HoangDevNguVer1[m[33m, [m[1;32mHoangDevNguVer1[m[33m)[m HEAD@{21}: checkout: moving from HoangDev7.0 to dev
+[33m173cddf[m[33m ([m[1;31morigin/HoangDev7.0[m[33m, [m[1;32mHoangDev7.0[m[33m)[m HEAD@{22}: commit: Added Review Module
+[33md19c731[m HEAD@{23}: reset: moving to d19c731
+[33md19c731[m HEAD@{24}: checkout: moving from HoangDevNguVer1 to HoangDev7.0
+[33m1050fd7[m[33m ([m[1;31morigin/HoangDevNguVer1[m[33m, [m[1;32mHoangDevNguVer1[m[33m)[m HEAD@{25}: checkout: moving from dev to HoangDevNguVer1
+[33m1050fd7[m[33m ([m[1;31morigin/HoangDevNguVer1[m[33m, [m[1;32mHoangDevNguVer1[m[33m)[m HEAD@{26}: pull: Fast-forward
+[33mccf9fc2[m[33m ([m[1;32mHoangDevNgu6.0[m[33m)[m HEAD@{27}: checkout: moving from HoangDev7.0 to dev
+[33md19c731[m HEAD@{28}: commit: Added NoShow Status & Fixed Bugs
+[33maaaa835[m HEAD@{29}: commit: Updated Person Module
+[33me0f3a90[m HEAD@{30}: commit (merge): Fixed Merging Errors
+[33m6714280[m HEAD@{31}: checkout: moving from HoangDevNgu6.0 to HoangDev7.0
+[33mccf9fc2[m[33m ([m[1;32mHoangDevNgu6.0[m[33m)[m HEAD@{32}: checkout: moving from dev to HoangDevNgu6.0
+[33mccf9fc2[m[33m ([m[1;32mHoangDevNgu6.0[m[33m)[m HEAD@{33}: pull: Fast-forward
+[33m4821a9e[m HEAD@{34}: checkout: moving from HoangDev7.0 to dev
+[33m6714280[m HEAD@{35}: commit: Fixed LoyalTiers Constraints
+[33m3daf350[m HEAD@{36}: commit: Updated Movie-Person Refactor
+[33m3b003df[m HEAD@{37}: commit: Added ChoosingVoucherRule API and fixed Check-in Notifcation
+[33m0b25903[m HEAD@{38}: commit: Inserted detailed data of check-in history
+[33mc171f59[m HEAD@{39}: commit: fix
+[33m538468c[m HEAD@{40}: commit: Fixed Voucher Module
+[33m3d55ee5[m HEAD@{41}: commit: Fix Constraint Violation bug
+[33m7a4eb23[m HEAD@{42}: commit: Fixed VoucherRule bugs
+[33m9385a34[m HEAD@{43}: commit: Fixed voucher module bugg
+[33m07054a9[m HEAD@{44}: commit: Updated Voucher Module
+[33m1808fc1[m HEAD@{45}: reset: moving to HEAD
+[33m1808fc1[m HEAD@{46}: commit: Nguvcl
+[33m4821a9e[m HEAD@{47}: checkout: moving from dev to HoangDev7.0
+[33m4821a9e[m HEAD@{48}: pull: Fast-forward
+[33m16755cd[m HEAD@{49}: checkout: moving from HoangDev6.0 to dev
+[33m15668b0[m[33m ([m[1;31morigin/HoangDev6.0[m[33m, [m[1;32mHoangDev6.0[m[33m)[m HEAD@{50}: commit: Fixed Register Error
+[33m16755cd[m HEAD@{51}: checkout: moving from dev to HoangDev6.0
+[33m16755cd[m HEAD@{52}: pull: Fast-forward
+[33me0bfca8[m HEAD@{53}: checkout: moving from HoangDevNgu5.0 to dev
+[33m061c696[m[33m ([m[1;31morigin/HoangDevNgu5.0[m[33m, [m[1;32mHoangDevNgu5.0[m[33m)[m HEAD@{54}: commit: Updated Wallet functions
+[33m917c633[m HEAD@{55}: commit: Fix CheckIn Module Logic
+[33me0bfca8[m HEAD@{56}: checkout: moving from dev to HoangDevNgu5.0
+[33me0bfca8[m HEAD@{57}: pull: Fast-forward
+[33m6fbf274[m HEAD@{58}: checkout: moving from HoangDevNgu4.0 to dev
+[33m102b0b4[m[33m ([m[1;31morigin/HoangDevNgu4.0[m[33m, [m[1;32mHoangDevNgu4.0[m[33m)[m HEAD@{59}: commit: Fix Checkin Module
+[33m35f494d[m HEAD@{60}: checkout: moving from HoangDevNgu4.0 to HoangDevNgu4.0
+[33m35f494d[m HEAD@{61}: commit: Test redemption
+[33mc766d3c[m HEAD@{62}: commit: Updated Redeemption for User
+[33ma86f3e7[m HEAD@{63}: commit: Updated Checkin History
+[33m239fc42[m HEAD@{64}: commit: Updated Staff Checkin
+[33m6fbf274[m HEAD@{65}: checkout: moving from dev to HoangDevNgu4.0
+[33m6fbf274[m HEAD@{66}: pull: Fast-forward
+[33m9ac4dbc[m HEAD@{67}: checkout: moving from HoangDevNgu3.0 to dev
+[33mb525176[m[33m ([m[1;31morigin/HoangDevNgu3.0[m[33m, [m[1;32mHoangDevNgu3.0[m[33m)[m HEAD@{68}: commit: Fix migration of Refund method
+[33m209fe82[m HEAD@{69}: commit: Update Refund Method
+[33mce2bc64[m HEAD@{70}: commit: Fix My Ticket
+[33m9ac4dbc[m HEAD@{71}: checkout: moving from dev to HoangDevNgu3.0
+[33m9ac4dbc[m HEAD@{72}: pull: Fast-forward
+[33mee50ab1[m[33m ([m[1;31morigin/HoangDevNgu2.0[m[33m, [m[1;32mHoangDevNgu2.0[m[33m)[m HEAD@{73}: reset: moving to origin/dev
+[33mee50ab1[m[33m ([m[1;31morigin/HoangDevNgu2.0[m[33m, [m[1;32mHoangDevNgu2.0[m[33m)[m HEAD@{74}: checkout: moving from HoangDevNgu2.0 to dev
+[33mee50ab1[m[33m ([m[1;31morigin/HoangDevNgu2.0[m[33m, [m[1;32mHoangDevNgu2.0[m[33m)[m HEAD@{75}: checkout: moving from dev to HoangDevNgu2.0
+[33mee50ab1[m[33m ([m[1;31morigin/HoangDevNgu2.0[m[33m, [m[1;32mHoangDevNgu2.0[m[33m)[m HEAD@{76}: pull: Fast-forward
+[33m4fc1183[m HEAD@{77}: checkout: moving from HoangDevNgu to dev
+[33m4525693[m[33m ([m[1;31morigin/HoangDevNgu[m[33m, [m[1;32mHoangDevNgu[m[33m)[m HEAD@{78}: commit: Updated MyTicket & Fixed TicketBookingId
+[33mcddc467[m HEAD@{79}: commit: Created Auto-ticket creation
+[33m96d2839[m HEAD@{80}: commit: Fix bug showtime & loyalty
+[33m4fc1183[m HEAD@{81}: checkout: moving from dev to HoangDevNgu
+[33m4fc1183[m HEAD@{82}: pull: Fast-forward
+[33m6604cc9[m HEAD@{83}: checkout: moving from main to dev
+[33m30c751b[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{84}: clone: from https://git.fsoft-academy.edu.vn/hcm26_cpl_net_04/group5/cgvp.git

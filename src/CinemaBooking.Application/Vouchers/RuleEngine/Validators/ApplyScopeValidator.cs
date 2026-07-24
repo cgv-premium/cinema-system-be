@@ -25,6 +25,13 @@ public sealed class ApplyScopeValidator : IVoucherRuleValidator
 
         if (applicableAmount <= 0)
         {
+            if (scope == ApplyScopes.Ticket)
+            {
+                return ValidationResult.Failure(
+                    RuleType,
+                    "This voucher applies only to movie tickets and cannot be applied to F&B-only orders.");
+            }
+
             return ValidationResult.Failure(
                 RuleType,
                 $"Voucher applies to {scope} but booking has no applicable amount in that category.");
