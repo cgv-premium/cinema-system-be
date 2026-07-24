@@ -12,6 +12,13 @@ public sealed class MovieValidator : IVoucherRuleValidator
 
     public ValidationResult Validate(VoucherRule rule, VoucherValidationContext context)
     {
+        if (context.MovieId == 0)
+        {
+            return ValidationResult.Failure(
+                RuleType,
+                "This voucher requires a movie ticket and cannot be applied to F&B-only orders.");
+        }
+
         var requiredMovieId = rule.RuleValue;
         var bookingMovieId = context.MovieId.ToString();
 

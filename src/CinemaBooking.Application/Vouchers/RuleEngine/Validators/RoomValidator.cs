@@ -12,6 +12,13 @@ public sealed class RoomValidator : IVoucherRuleValidator
 
     public ValidationResult Validate(VoucherRule rule, VoucherValidationContext context)
     {
+        if (context.RoomId == 0)
+        {
+            return ValidationResult.Failure(
+                RuleType,
+                "This voucher requires a specific room and cannot be applied to F&B-only orders.");
+        }
+
         var requiredRoomId = rule.RuleValue;
         var bookingRoomId = context.RoomId.ToString();
 
