@@ -1,4 +1,5 @@
 using CinemaBooking.Application.Common.Interfaces;
+using CinemaBooking.Application.Notifications;
 using CinemaBooking.Application.Showtimes;
 using CinemaBooking.Domain.Entities;
 
@@ -10,7 +11,7 @@ public sealed class ShowtimeServiceTests
     public async Task CreateShowtimeAsync_RoomHasNoActiveSeats_ReturnsValidationError()
     {
         var repository = new StubShowtimeRepository { ActiveSeats = [] };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.CreateShowtimeAsync(
             1, 1, DateTime.UtcNow.AddDays(1), 100_000);
@@ -31,7 +32,7 @@ public sealed class ShowtimeServiceTests
     public async Task GetShowtimesAsync_InvalidPagingOrSort_ReturnsValidationError(
         int page, int pageSize, string sortBy, string sortDir)
     {
-        var service = new ShowtimeService(new StubShowtimeRepository());
+        var service = new ShowtimeService(new StubShowtimeRepository(), new StubNotificationOutbox());
 
         var result = await service.GetShowtimesAsync(
             null, null, null, null, null, null, page, pageSize, sortBy, sortDir);
@@ -49,7 +50,7 @@ public sealed class ShowtimeServiceTests
     public async Task GetShowtimesAsync_ValidSortBy_ReturnsSuccess(
         string sortBy, string sortDir)
     {
-        var service = new ShowtimeService(new StubShowtimeRepository());
+        var service = new ShowtimeService(new StubShowtimeRepository(), new StubNotificationOutbox());
 
         var result = await service.GetShowtimesAsync(
             null, null, null, null, null, null, 1, 10, sortBy, sortDir);
@@ -64,7 +65,7 @@ public sealed class ShowtimeServiceTests
         {
             ActiveSeats = [new Seat { SeatID = 1, RoomID = 1, Status = "active" }]
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.CreateShowtimeAsync(
             1, 1, DateTime.SpecifyKind(DateTime.Now.AddDays(1), DateTimeKind.Unspecified), 100_000);
@@ -80,7 +81,7 @@ public sealed class ShowtimeServiceTests
         {
             ActiveSeats = [new Seat { SeatID = 1, RoomID = 1, Status = "active" }]
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.CreateShowtimeAsync(
             1, 1, DateTime.UtcNow.AddDays(1), 100_000, managerCinemaId: 2);
@@ -99,7 +100,7 @@ public sealed class ShowtimeServiceTests
         {
             ActiveSeats = [new Seat { SeatID = 1, RoomID = 1, Status = "active" }]
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.CreateShowtimeAsync(
             1, 1, DateTime.UtcNow.AddDays(1), 100_000);
@@ -116,7 +117,7 @@ public sealed class ShowtimeServiceTests
         {
             ActiveSeats = [new Seat { SeatID = 1, RoomID = 1, Status = "active" }]
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.CreateShowtimeAsync(
             1, 1, DateTime.UtcNow.AddMinutes(-1), 100_000);
@@ -133,7 +134,7 @@ public sealed class ShowtimeServiceTests
             ActiveSeats = [new Seat { SeatID = 1, RoomID = 1, Status = "active" }],
             HasRoomTypeStartConflict = true
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.CreateShowtimeAsync(
             1, 1, DateTime.UtcNow.AddDays(1), 100_000);
@@ -158,7 +159,7 @@ public sealed class ShowtimeServiceTests
                 StartTime = startTime, BasePrice = 100_000, Status = "scheduled"
             }
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.UpdateShowtimeAsync(
             1, 1, 1, startTime.AddHours(1), 100_000, null);
@@ -181,7 +182,7 @@ public sealed class ShowtimeServiceTests
                 StartTime = startTime, BasePrice = 100_000, Status = "scheduled"
             }
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.UpdateShowtimeAsync(
             1, 1, 1, startTime, 100_000, "CANCELLED");
@@ -208,7 +209,7 @@ public sealed class ShowtimeServiceTests
                 }
             }
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.UpdateShowtimeAsync(
             1, 1, 1, startTime, 100_000, "cancelled");
@@ -230,7 +231,7 @@ public sealed class ShowtimeServiceTests
                 Room = new Room { CinemaID = 1 }
             }
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.DeleteShowtimeAsync(1);
 
@@ -250,7 +251,7 @@ public sealed class ShowtimeServiceTests
                 StartTime = startTime, BasePrice = 100_000, Status = "scheduled"
             }
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.UpdateShowtimeAsync(
             1, 1, 1, startTime, 100_000, "COMPLETED");
@@ -271,7 +272,7 @@ public sealed class ShowtimeServiceTests
                 StartTime = startTime, BasePrice = 100_000, Status = "cancelled"
             }
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.UpdateShowtimeAsync(
             1, 1, 1, startTime, 100_000, null);
@@ -292,7 +293,7 @@ public sealed class ShowtimeServiceTests
                 StartTime = startTime, BasePrice = 100_000, Status = "cancelled"
             }
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.UpdateShowtimeAsync(
             1, 1, 1, startTime, 100_000, "SCHEDULED");
@@ -314,13 +315,39 @@ public sealed class ShowtimeServiceTests
                 StartTime = startTime, BasePrice = 100_000, Status = "scheduled"
             }
         };
-        var service = new ShowtimeService(repository);
+        var service = new ShowtimeService(repository, new StubNotificationOutbox());
 
         var result = await service.UpdateShowtimeAsync(
             1, 1, 1, startTime, 100_000, "COMPLETED");
 
         Assert.False(result.Succeeded);
         Assert.Equal("Showtime has active bookings or seat holds", result.ErrorMessage);
+    }
+
+    private sealed class StubNotificationOutbox : INotificationOutbox
+    {
+        public Task EnqueueBookingSuccessAsync(int bookingId, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRefundCompletedAsync(int bookingId, decimal amount, DateTime completedAt, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueWalletRefundAsync(int userId, decimal amount, DateTime occurredAt, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueWalletPaymentAsync(int userId, decimal amount, DateTime occurredAt, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRevenueAnomalyAsync(int cinemaId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueDailySummaryAsync(int? cinemaId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueTopSellingMovieAsync(int movieId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueLowPerformingMovieAsync(int movieId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueMovieEndingSoonAsync(int movieId, string message, int daysRemaining, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeSoldOutAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueLowOccupancyShowtimeAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueVoucherExpiringSoonAsync(int voucherId, string message, int daysRemaining, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueVoucherOutOfStockAsync(int voucherId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueNewCustomerSummaryAsync(string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueuePaymentIssueAsync(string message, string? paymentMethod = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRoomCreatedAsync(int roomId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRoomUpdatedAsync(int roomId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRoomInactiveAsync(int roomId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeStartingSoonAsync(int showtimeId, string message, int minutesRemaining, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeCreatedAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeUpdatedAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeDeletedAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
     private sealed class StubShowtimeRepository : IShowtimeRepository

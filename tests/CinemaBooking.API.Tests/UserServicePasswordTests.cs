@@ -120,5 +120,41 @@ public sealed class UserServicePasswordTests
             Task.CompletedTask;
         public Task<bool> HasUsedVoucherCodeAsync(int userId, string voucherCode, CancellationToken cancellationToken = default) =>
             Task.FromResult(false);
+
+        public Task<UserVoucher?> GetByIdAsync(int userVoucherId, CancellationToken cancellationToken = default) =>
+            Task.FromResult<UserVoucher?>(null);
+
+        public Task<(bool Succeeded, string? Error)> RedeemVoucherAsync(
+            UserVoucher userVoucher,
+            LoyaltyPoints loyaltyPoint,
+            int pointsToDeduct,
+            int? maxUses,
+            int? exchangeLimit,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<(bool, string?)>((false, "Not supported"));
+
+        public Task<UserVoucher?> GetAvailableOwnedAsync(
+            int userId,
+            int voucherId,
+            DateTime now,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<UserVoucher?>(null);
+
+        public Task<UserVoucher?> GetAvailableForUpdateAsync(
+            int userId,
+            int voucherId,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult<UserVoucher?>(null);
+
+        public Task MarkReservedAsUsedByBookingAsync(
+            int bookingId,
+            DateTime usedAt,
+            CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
+
+        public Task ReleaseReservedByBookingAsync(
+            int bookingId,
+            CancellationToken cancellationToken = default) =>
+            Task.CompletedTask;
     }
 }

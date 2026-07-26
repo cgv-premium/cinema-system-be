@@ -1,4 +1,5 @@
 using CinemaBooking.Application.Common.Interfaces;
+using CinemaBooking.Application.Notifications;
 using CinemaBooking.Application.Rooms;
 using CinemaBooking.Domain.Entities;
 
@@ -10,7 +11,7 @@ public sealed class RoomServiceScopeTests
     public async Task CreateRoom_ForAnotherCinema_ReturnsForbiddenMessage()
     {
         var repository = new StubRoomRepository();
-        var service = new RoomService(repository);
+        var service = new RoomService(repository, new StubNotificationOutbox());
 
         var result = await service.CreateRoomAsync(
             2, "Room 1", 1, "ACTIVE", null, managerCinemaId: 1);
@@ -30,13 +31,39 @@ public sealed class RoomServiceScopeTests
             ExistingRoom = new Room { RoomID = 1, CinemaID = 1 },
             HasAnyShowtimes = true
         };
-        var service = new RoomService(repository);
+        var service = new RoomService(repository, new StubNotificationOutbox());
 
         var result = await service.DeleteRoomAsync(1, managerCinemaId: 1);
 
         Assert.False(result.Succeeded);
         Assert.Equal("Room has showtime history", result.ErrorMessage);
         Assert.Equal(0, repository.DeleteCallCount);
+    }
+
+    private sealed class StubNotificationOutbox : INotificationOutbox
+    {
+        public Task EnqueueBookingSuccessAsync(int bookingId, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRefundCompletedAsync(int bookingId, decimal amount, DateTime completedAt, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueWalletRefundAsync(int userId, decimal amount, DateTime occurredAt, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueWalletPaymentAsync(int userId, decimal amount, DateTime occurredAt, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRevenueAnomalyAsync(int cinemaId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueDailySummaryAsync(int? cinemaId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueTopSellingMovieAsync(int movieId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueLowPerformingMovieAsync(int movieId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueMovieEndingSoonAsync(int movieId, string message, int daysRemaining, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeSoldOutAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueLowOccupancyShowtimeAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueVoucherExpiringSoonAsync(int voucherId, string message, int daysRemaining, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueVoucherOutOfStockAsync(int voucherId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueNewCustomerSummaryAsync(string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueuePaymentIssueAsync(string message, string? paymentMethod = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRoomCreatedAsync(int roomId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRoomUpdatedAsync(int roomId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRoomInactiveAsync(int roomId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeStartingSoonAsync(int showtimeId, string message, int minutesRemaining, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeCreatedAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeUpdatedAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeDeletedAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
     private sealed class StubRoomRepository : IRoomRepository

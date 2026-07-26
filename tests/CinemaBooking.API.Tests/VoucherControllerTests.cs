@@ -650,9 +650,4 @@ public sealed class VoucherControllerTests
         public Task<UserRedeemableVouchersResult> GetUserRedeemableVouchersAsync(int userId, CancellationToken ct) =>
             throw new NotSupportedException();
     }
-
-    private sealed class StubVoucherRuleMetadataProvider : IVoucherRuleMetadataProvider
-    {
-        public IReadOnlyList<VoucherRuleTypeMetadata> GetAll() => [];
-    }
 }

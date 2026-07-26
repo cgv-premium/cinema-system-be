@@ -1,4 +1,5 @@
 using CinemaBooking.Application.Common.Interfaces;
+using CinemaBooking.Application.Notifications;
 using CinemaBooking.Application.Vouchers;
 using CinemaBooking.Domain.Entities;
 
@@ -10,7 +11,7 @@ public sealed class VoucherServiceTests
     public async Task Create_PercentWithinRange_CreatesActiveVoucher()
     {
         var repository = new StubRepository();
-        var service = new VoucherService(repository, new StubUserVoucherRepository(), new StubUserRepository(), new StubStorage(), new StubVoucherRuleRepository());
+        var service = new VoucherService(repository, new StubUserVoucherRepository(), new StubUserRepository(), new StubStorage(), new StubVoucherRuleRepository(), new StubNotificationOutbox());
         var result = await service.CreateAsync(1,
             new(" summer10 ", "percent", 10, 100_000, 50,
                 new DateTimeOffset(2026, 7, 1, 0, 0, 0, TimeSpan.FromHours(7)),
@@ -25,7 +26,7 @@ public sealed class VoucherServiceTests
     [Fact]
     public async Task Create_PercentAboveOneHundred_ReturnsValidationError()
     {
-        var service = new VoucherService(new StubRepository(), new StubUserVoucherRepository(), new StubUserRepository(), new StubStorage(), new StubVoucherRuleRepository());
+        var service = new VoucherService(new StubRepository(), new StubUserVoucherRepository(), new StubUserRepository(), new StubStorage(), new StubVoucherRuleRepository(), new StubNotificationOutbox());
         var result = await service.CreateAsync(1,
             new("TEST", "percent", 101, null, null,
                 new DateTimeOffset(2026, 7, 1, 0, 0, 0, TimeSpan.FromHours(7)),
@@ -74,6 +75,32 @@ public sealed class VoucherServiceTests
         public Task<VoucherRule> AddAsync(VoucherRule rule, CancellationToken ct) => Task.FromResult(rule);
         public Task<bool> DeleteAsync(int ruleId, CancellationToken ct) => Task.FromResult(true);
         public Task<List<VoucherRule>> GetByRuleTypeAsync(int voucherId, string ruleType, CancellationToken ct) => Task.FromResult(new List<VoucherRule>());
+    }
+
+    private sealed class StubNotificationOutbox : INotificationOutbox
+    {
+        public Task EnqueueBookingSuccessAsync(int bookingId, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRefundCompletedAsync(int bookingId, decimal amount, DateTime completedAt, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueWalletRefundAsync(int userId, decimal amount, DateTime occurredAt, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueWalletPaymentAsync(int userId, decimal amount, DateTime occurredAt, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRevenueAnomalyAsync(int cinemaId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueDailySummaryAsync(int? cinemaId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueTopSellingMovieAsync(int movieId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueLowPerformingMovieAsync(int movieId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueMovieEndingSoonAsync(int movieId, string message, int daysRemaining, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeSoldOutAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueLowOccupancyShowtimeAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueVoucherExpiringSoonAsync(int voucherId, string message, int daysRemaining, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueVoucherOutOfStockAsync(int voucherId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueNewCustomerSummaryAsync(string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueuePaymentIssueAsync(string message, string? paymentMethod = null, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRoomCreatedAsync(int roomId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRoomUpdatedAsync(int roomId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueRoomInactiveAsync(int roomId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeStartingSoonAsync(int showtimeId, string message, int minutesRemaining, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeCreatedAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeUpdatedAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
+        public Task EnqueueShowtimeDeletedAsync(int showtimeId, string message, CancellationToken cancellationToken = default) => Task.CompletedTask;
     }
 
     private sealed class StubUserRepository : IUserRepository

@@ -1,5 +1,6 @@
 using CinemaBooking.Application.CheckIns;
 using CinemaBooking.Application.Common.Interfaces;
+using CinemaBooking.Application.Membership;
 using CinemaBooking.Domain.Entities;
 using CinemaBooking.Shared.Constants;
 using System;
@@ -15,7 +16,7 @@ public sealed class CheckInServiceTests
     {
         var ticketRepo = new StubTicketRepository { TicketToReturn = null };
         var bookingRepo = new StubBookingRepository();
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.LookupAsync("INVALID_QR", staffId: 1);
 
@@ -32,7 +33,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository();
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.LookupAsync("QR123", staffId: 1);
 
@@ -46,7 +47,7 @@ public sealed class CheckInServiceTests
         var ticket = CreateValidTicket();
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = null };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.LookupAsync("QR123", staffId: 1);
 
@@ -62,7 +63,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.LookupAsync("QR123", staffId: 1);
 
@@ -76,7 +77,7 @@ public sealed class CheckInServiceTests
         var ticket = CreateValidTicket();
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 999 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.LookupAsync("QR123", staffId: 1);
 
@@ -94,7 +95,7 @@ public sealed class CheckInServiceTests
         var ticket = CreateValidTicket();
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.LookupAsync("QR123", staffId: 1);
 
@@ -124,7 +125,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.LookupAsync("QR123", staffId: 1);
 
@@ -147,7 +148,7 @@ public sealed class CheckInServiceTests
             CheckInHistoryTotalCount = 1
         };
         var ticketRepo = new StubTicketRepository();
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.GetHistoryAsync(
             staffId: 1,
@@ -177,7 +178,7 @@ public sealed class CheckInServiceTests
             CheckInHistoryTotalCount = 0
         };
         var ticketRepo = new StubTicketRepository();
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.GetHistoryAsync(
             staffId: 999,
@@ -200,7 +201,7 @@ public sealed class CheckInServiceTests
             CheckInHistoryTotalCount = 0
         };
         var ticketRepo = new StubTicketRepository();
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var fromDate = DateTime.UtcNow.AddDays(-7);
         var toDate = DateTime.UtcNow;
@@ -396,7 +397,7 @@ public sealed class CheckInServiceTests
     {
         var ticketRepo = new StubTicketRepository { TicketToReturn = null };
         var bookingRepo = new StubBookingRepository();
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("INVALID_QR", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -413,7 +414,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository();
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -427,7 +428,7 @@ public sealed class CheckInServiceTests
         var ticket = CreateValidTicket();
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = null };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -441,7 +442,7 @@ public sealed class CheckInServiceTests
         var ticket = CreateValidTicket();
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 999 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -457,7 +458,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -473,7 +474,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -490,7 +491,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -506,7 +507,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -522,7 +523,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -538,7 +539,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -555,7 +556,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -572,7 +573,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -589,7 +590,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -606,7 +607,7 @@ public sealed class CheckInServiceTests
 
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 1, ipAddress: "127.0.0.1");
 
@@ -620,7 +621,7 @@ public sealed class CheckInServiceTests
         var ticket = CreateValidTicket();
         var ticketRepo = new StubTicketRepository { TicketToReturn = ticket };
         var bookingRepo = new StubBookingRepository { StaffCinemaId = 1 };
-        var service = new CheckInService(ticketRepo, bookingRepo);
+        var service = new CheckInService(ticketRepo, bookingRepo, new StubMembershipService());
 
         var result = await service.CheckInAsync("QR123", staffId: 42, ipAddress: "192.168.1.100");
 
@@ -653,7 +654,7 @@ public sealed class CheckInServiceTests
             return Task.FromResult(TicketToReturn);
         }
 
-        public Task<bool> PerformTicketCheckInAsync(
+        public Task<(bool Success, bool BookingBecameUsed)> PerformTicketCheckInAsync(
             int ticketId,
             int bookingId,
             int staffId,
@@ -666,7 +667,7 @@ public sealed class CheckInServiceTests
             CheckedInBookingId = bookingId;
             CheckedInStaffId = staffId;
             CheckedInIpAddress = ipAddress;
-            return Task.FromResult(true);
+            return Task.FromResult((true, false));
         }
 
         public Task<Ticket> CreateTicketAsync(Ticket ticket, CancellationToken cancellationToken = default) =>
@@ -685,6 +686,16 @@ public sealed class CheckInServiceTests
             throw new NotSupportedException();
         public Task<bool> AreAllTicketsUsedInBookingAsync(int bookingId, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
+    }
+
+    private sealed class StubMembershipService : IMembershipService
+    {
+        public Task<MembershipInfo> GetMyMembershipAsync(int userId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<List<LoyaltyTier>> GetTiersAsync(CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<CreateTierResult> CreateTierAsync(string tierName, int minPoints, decimal discountRate, int maxRefundPerMonth, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<List<LoyaltyPointHistory>> GetPointHistoryAsync(int userId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task AddPointsAfterPaymentSuccessAsync(int userId, int bookingId, decimal finalAmount, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task CheckAndUpgradeTierAsync(int userId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     }
 
     private sealed class StubBookingRepository : IBookingRepository
@@ -765,6 +776,9 @@ public sealed class CheckInServiceTests
         public Task<(List<Booking> Bookings, int TotalCount)> GetFnBPickupHistoryAsync(
             int? staffId, int? cinemaId, DateTime? from, DateTime? to, int page, int pageSize,
             CancellationToken cancellationToken = default) =>
+            throw new NotSupportedException();
+
+        public Task<(int TotalSeats, int BookedSeats)> GetShowtimeOccupancyAsync(int showtimeId, CancellationToken cancellationToken = default) =>
             throw new NotSupportedException();
     }
 

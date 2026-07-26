@@ -6,6 +6,7 @@ using CinemaBooking.Application.Common.Interfaces;
 using CinemaBooking.Application.Contracts.Payment;
 using CinemaBooking.Application.Payments;
 using CinemaBooking.Application.Payments.PayOS;
+using CinemaBooking.Application.Reviews;
 using CinemaBooking.Domain.Entities;
 using CinemaBooking.Shared.Constants;
 using Microsoft.AspNetCore.Http;
@@ -57,7 +58,7 @@ public sealed class BookingAuthorizationTests
             new Claim(ClaimTypes.Role, role)
         ], "Test");
 
-        return new BookingController(service, new StubBookingRepository(), new StubPaymentService())
+        return new BookingController(service, new StubBookingRepository(), new StubPaymentService(), new StubMovieReviewRepository(), new StubLoyaltyRepository(), new StubReviewRewardSettingsRepository())
         {
             ControllerContext = new ControllerContext
             {
@@ -149,6 +150,53 @@ public sealed class BookingAuthorizationTests
         }
     }
 
+    private sealed class StubMovieReviewRepository : IMovieReviewRepository
+    {
+        public Task<MovieReview> AddAsync(MovieReview review, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<MovieReview?> GetByIdAsync(int reviewId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> ExistsAsync(int reviewId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> BookingHasReviewAsync(int bookingId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> UserHasReviewedMovieAsync(int userId, int movieId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> UserHasAnyReviewAsync(int userId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> MovieExistsAsync(int movieId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<MovieReview?> GetForUpdateAsync(int reviewId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task UpdateAsync(MovieReview review, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<MovieReviewStats> GetVisibleStatsForMovieAsync(int movieId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<IReadOnlyDictionary<int, MovieReviewStats>> GetVisibleStatsForMoviesAsync(IReadOnlyCollection<int> movieIds, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<List<ReviewListItem>> GetVisibleReviewsForMovieAsync(int movieId, int page, int pageSize, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<(int? ReviewId, bool HasReview)> GetBookingReviewLookupAsync(int bookingId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<IReadOnlyDictionary<int, int>> GetReviewIdsByBookingIdsAsync(IReadOnlyCollection<int> bookingIds, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<(IReadOnlyList<AdminReviewListItem> Items, int Total)> SearchAdminReviewsAsync(string? keyword, int? movieId, AdminReviewStatusFilter status, int page, int pageSize, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+    }
+
+    private sealed class StubLoyaltyRepository : ILoyaltyRepository
+    {
+        public Task<int> GetUserTotalPointsAsync(int userId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<decimal> GetUserTotalSpentAsync(int userId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<LoyaltyTier?> GetUserTierAsync(int userId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<List<LoyaltyTier>> GetAllTiersAsync(CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<LoyaltyTier?> GetTierByIdAsync(int tierId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> TierNameExistsAsync(string tierName, int? excludingTierId = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> MinPointsExistsAsync(int minPoints, int? excludingTierId = null, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<LoyaltyTier> AddTierAsync(LoyaltyTier tier, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<LoyaltyTier?> UpdateTierAsync(int tierId, string tierName, int minPoints, decimal discountRate, int maxRefundPerMonth, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> HasAssignedUsersAsync(int tierId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> DeleteTierAsync(int tierId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task AddLoyaltyPointAsync(LoyaltyPoints loyaltyPoint, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<List<LoyaltyPoints>> GetPointHistoryAsync(int userId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task UpdateUserTierAsync(int userId, int tierID, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task UpdateUserTotalPointsAsync(int userId, int totalPoints, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<bool> HasPointsForBookingAsync(int bookingId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<IReadOnlySet<int>> GetBookingIdsWithEarnedPointsAsync(IReadOnlyCollection<int> bookingIds, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<List<LoyaltyTier>> GetTiersByIdsAsync(List<int> tierIds, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+    }
+
+    private sealed class StubReviewRewardSettingsRepository : IReviewRewardSettingsRepository
+    {
+        public Task<ReviewRewardSettings?> GetAsync(CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task UpdateAsync(ReviewRewardSettings settings, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+    }
+
     private sealed class StubBookingRepository : IBookingRepository
     {
         public Task<int?> GetStaffCinemaIdAsync(int staffId, CancellationToken cancellationToken = default) =>
@@ -182,6 +230,8 @@ public sealed class BookingAuthorizationTests
         public Task<bool> UpdateBookingFnBPickupAsync(string bookingCode, int staffId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task DeleteSeatHoldsByBookingIdAsync(int bookingId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task<(List<Booking> Bookings, int TotalCount)> GetFnBPickupHistoryAsync(int? staffId, int? cinemaId, DateTime? from, DateTime? to, int page, int pageSize, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<(int TotalSeats, int BookedSeats)> GetShowtimeOccupancyAsync(int showtimeId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     }
 
     private sealed class StubPaymentService : IPaymentService

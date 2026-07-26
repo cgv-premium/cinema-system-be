@@ -198,6 +198,8 @@ public sealed class BookingProductAvailabilityTests
         public Task<(List<Booking> Bookings, int TotalCount)> GetFnBPickupHistoryAsync(
             int? staffId, int? cinemaId, DateTime? from, DateTime? to, int page, int pageSize,
             CancellationToken cancellationToken = default) => throw new NotSupportedException();
+
+        public Task<(int TotalSeats, int BookedSeats)> GetShowtimeOccupancyAsync(int showtimeId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     }
 
     private sealed class StubUnitOfWork : IUnitOfWork

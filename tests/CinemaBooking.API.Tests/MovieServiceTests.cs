@@ -167,6 +167,9 @@ public sealed class MovieServiceTests
             CancellationToken cancellationToken = default) => Task.FromResult(false);
         public Task<bool> DeleteMovieAsync(int movieId, CancellationToken cancellationToken = default) =>
             Task.FromResult(false);
+
+        public Task<List<Movie>> GetMoviesByIdsAsync(List<int> movieIds, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new List<Movie>());
     }
 
     private sealed class StubImageStorageService : IImageStorageService
