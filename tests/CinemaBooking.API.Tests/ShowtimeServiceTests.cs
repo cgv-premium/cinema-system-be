@@ -152,7 +152,7 @@ public sealed class ShowtimeServiceTests
         var startTime = DateTime.UtcNow.AddDays(1);
         var repository = new StubShowtimeRepository
         {
-            HasActiveBookingOrHold = true,
+            HasAnyBookingOrHold = true,
             ExistingShowtime = new Showtime
             {
                 ShowtimeID = 1, MovieID = 1, RoomID = 1,
@@ -165,7 +165,7 @@ public sealed class ShowtimeServiceTests
             1, 1, 1, startTime.AddHours(1), 100_000, null);
 
         Assert.False(result.Succeeded);
-        Assert.Equal("Showtime has active bookings or seat holds", result.ErrorMessage);
+        Assert.Equal("Showtime has booking or seat hold history", result.ErrorMessage);
         Assert.Equal(0, repository.UpdateCallCount);
     }
 
@@ -308,7 +308,7 @@ public sealed class ShowtimeServiceTests
     }
 
     [Fact]
-    public async Task UpdateShowtimeAsync_StatusChangeWithBookingOrHold_ReturnsConflict()
+    public async Task UpdateShowtimeAsync_StatusChangeWithBookingOrHold_Succeeds()
     {
         var startTime = DateTime.UtcNow.AddDays(1);
         var repository = new StubShowtimeRepository
@@ -317,7 +317,9 @@ public sealed class ShowtimeServiceTests
             ExistingShowtime = new Showtime
             {
                 ShowtimeID = 1, MovieID = 1, RoomID = 1,
-                StartTime = startTime, BasePrice = 100_000, Status = "scheduled"
+                StartTime = startTime, BasePrice = 100_000, Status = "scheduled",
+                Movie = new Movie { Title = "Test Movie" },
+                Room = new Room { RoomName = "Room 1", CinemaID = 1 }
             }
         };
         var service = new ShowtimeService(repository, new StubNotificationOutbox());
@@ -325,12 +327,12 @@ public sealed class ShowtimeServiceTests
         var result = await service.UpdateShowtimeAsync(
             1, 1, 1, startTime, 100_000, "CANCELLED");
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("Showtime has booking or seat hold history", result.ErrorMessage);
+        Assert.True(result.Succeeded);
+        Assert.Equal("cancelled", result.Showtime!.Status);
     }
 
     [Fact]
-    public async Task UpdateShowtimeAsync_UnCancelWithBookingOrHold_ReturnsConflict()
+    public async Task UpdateShowtimeAsync_UnCancelWithBookingOrHold_Succeeds()
     {
         var startTime = DateTime.UtcNow.AddDays(1);
         var repository = new StubShowtimeRepository
@@ -339,7 +341,9 @@ public sealed class ShowtimeServiceTests
             ExistingShowtime = new Showtime
             {
                 ShowtimeID = 1, MovieID = 1, RoomID = 1,
-                StartTime = startTime, BasePrice = 100_000, Status = "cancelled"
+                StartTime = startTime, BasePrice = 100_000, Status = "cancelled",
+                Movie = new Movie { Title = "Test Movie" },
+                Room = new Room { RoomName = "Room 1", CinemaID = 1 }
             }
         };
         var service = new ShowtimeService(repository, new StubNotificationOutbox());
@@ -347,12 +351,12 @@ public sealed class ShowtimeServiceTests
         var result = await service.UpdateShowtimeAsync(
             1, 1, 1, startTime, 100_000, "SCHEDULED");
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("Showtime has booking or seat hold history", result.ErrorMessage);
+        Assert.True(result.Succeeded);
+        Assert.Equal("scheduled", result.Showtime!.Status);
     }
 
     [Fact]
-    public async Task UpdateShowtimeAsync_ActiveBookingAndNonCancelledStatus_ReturnsConflict()
+    public async Task UpdateShowtimeAsync_ActiveBookingAndNonCancelledStatus_Succeeds()
     {
         var startTime = DateTime.UtcNow.AddDays(1);
         var repository = new StubShowtimeRepository
@@ -361,7 +365,9 @@ public sealed class ShowtimeServiceTests
             ExistingShowtime = new Showtime
             {
                 ShowtimeID = 1, MovieID = 1, RoomID = 1,
-                StartTime = startTime, BasePrice = 100_000, Status = "scheduled"
+                StartTime = startTime, BasePrice = 100_000, Status = "scheduled",
+                Movie = new Movie { Title = "Test Movie" },
+                Room = new Room { RoomName = "Room 1", CinemaID = 1 }
             }
         };
         var service = new ShowtimeService(repository, new StubNotificationOutbox());
@@ -369,8 +375,8 @@ public sealed class ShowtimeServiceTests
         var result = await service.UpdateShowtimeAsync(
             1, 1, 1, startTime, 100_000, "COMPLETED");
 
-        Assert.False(result.Succeeded);
-        Assert.Equal("Showtime has booking or seat hold history", result.ErrorMessage);
+        Assert.True(result.Succeeded);
+        Assert.Equal("completed", result.Showtime!.Status);
     }
 
     private sealed class StubNotificationOutbox : INotificationOutbox
