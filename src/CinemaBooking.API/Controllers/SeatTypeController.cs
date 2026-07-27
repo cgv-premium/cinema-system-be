@@ -4,6 +4,7 @@ using CinemaBooking.Domain.Entities;
 using CinemaBooking.Shared.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using CinemaBooking.Application.ActivityLogs;
 
 namespace CinemaBooking.API.Controllers;
 
@@ -12,10 +13,12 @@ namespace CinemaBooking.API.Controllers;
 public sealed class SeatTypeController : ControllerBase
 {
     private readonly ISeatTypeService _seatTypeService;
+    private readonly IActivityLogService _activityLogs;
 
-    public SeatTypeController(ISeatTypeService seatTypeService)
+    public SeatTypeController(ISeatTypeService seatTypeService, IActivityLogService activityLogs)
     {
         _seatTypeService = seatTypeService;
+        _activityLogs = activityLogs;
     }
 
     [HttpGet]
@@ -62,6 +65,8 @@ public sealed class SeatTypeController : ControllerBase
         }
 
         var response = ToResponse(result.SeatType!);
+        if (!this.TryAuditActorId(out var adminId)) return Unauthorized();
+        await _activityLogs.RecordAsync(adminId, AdminActionTypes.CreateSeatType, "SeatType", response.SeatTypeId, $"Created seat type {response.SeatTypeId}", this.AuditIpAddress(), cancellationToken);
         return CreatedAtAction(
             nameof(GetSeatTypeById),
             new { id = response.SeatTypeId },
@@ -94,6 +99,8 @@ public sealed class SeatTypeController : ControllerBase
                 : BadRequest(new { success = false, message = result.ErrorMessage });
         }
 
+        if (!this.TryAuditActorId(out var adminId)) return Unauthorized();
+        await _activityLogs.RecordAsync(adminId, AdminActionTypes.UpdateSeatType, "SeatType", id, $"Updated seat type {id}", this.AuditIpAddress(), cancellationToken);
         return Ok(ToResponse(result.SeatType!));
     }
 
@@ -112,6 +119,8 @@ public sealed class SeatTypeController : ControllerBase
                 : Conflict(new { success = false, message = result.ErrorMessage });
         }
 
+        if (!this.TryAuditActorId(out var adminId)) return Unauthorized();
+        await _activityLogs.RecordAsync(adminId, AdminActionTypes.DeleteSeatType, "SeatType", id, $"Deleted seat type {id}", this.AuditIpAddress(), cancellationToken);
         return NoContent();
     }
 

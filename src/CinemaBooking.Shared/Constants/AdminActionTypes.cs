@@ -16,6 +16,12 @@ public static class AdminActionTypes
     public const string ChangeRole = "change_role";
     public const string DeleteUser = "delete_user";
     public const string DeactivateUser = "deactivate_user";
+    public const string CreateSeatType = "create_seat_type";
+    public const string UpdateSeatType = "update_seat_type";
+    public const string DeleteSeatType = "delete_seat_type";
+    public const string CreateProduct = "create_product";
+    public const string UpdateProduct = "update_product";
+    public const string DeleteProduct = "delete_product";
     public const string CreateVoucher = "create_voucher";
     public const string UpdateVoucher = "update_voucher";
     public const string DeleteVoucher = "delete_voucher";

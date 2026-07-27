@@ -25,7 +25,9 @@ public sealed class ActivityLogService : IActivityLogService
         [AdminActionTypes.CreateGenre]="Genre", [AdminActionTypes.UpdateGenre]="Genre", [AdminActionTypes.DeleteGenre]="Genre",
         [AdminActionTypes.CreateMovie]="Movie", [AdminActionTypes.UpdateMovie]="Movie", [AdminActionTypes.DeleteMovie]="Movie",
         [AdminActionTypes.ExportReport]="Report", [AdminActionTypes.Refund]="Refund",
-        [AdminActionTypes.CreateRoomType]="RoomType", [AdminActionTypes.UpdateRoomType]="RoomType", [AdminActionTypes.DeleteRoomType]="RoomType"
+        [AdminActionTypes.CreateRoomType]="RoomType", [AdminActionTypes.UpdateRoomType]="RoomType", [AdminActionTypes.DeleteRoomType]="RoomType",
+        [AdminActionTypes.CreateSeatType]="SeatType", [AdminActionTypes.UpdateSeatType]="SeatType", [AdminActionTypes.DeleteSeatType]="SeatType",
+        [AdminActionTypes.CreateProduct]="Product", [AdminActionTypes.UpdateProduct]="Product", [AdminActionTypes.DeleteProduct]="Product"
     };
     private readonly CinemaBookingDbContext _db;
     public ActivityLogService(CinemaBookingDbContext db) => _db = db;
