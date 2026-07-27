@@ -97,14 +97,15 @@ public sealed class ShowtimeService : IShowtimeService
         if (startTime.Kind != DateTimeKind.Utc)
             return (false, StartTimeMustBeUtcMessage, null);
 
-        if (existing.Status == "cancelled" && manualStatus is not null and not "cancelled")
-            return (false, "Cancelled showtime cannot be updated.", null);
+        var isStatusChanging = manualStatus is not null && manualStatus != existing.Status;
+        if (isStatusChanging)
+        {
+            if (await _showtimeRepository.HasAnyBookingOrHoldAsync(id, cancellationToken))
+                return (false, "Showtime has booking or seat hold history", null);
+        }
 
         if (manualStatus == "cancelled")
         {
-            if (await _showtimeRepository.HasSuccessfulBookingAsync(id, cancellationToken))
-                return (false, "Showtime has successful bookings", null);
-
             existing.Status = "cancelled";
             var cancelled = await _showtimeRepository.UpdateAsync(existing, cancellationToken);
             if (cancelled is null) return (false, "Showtime not found", null);
@@ -120,7 +121,7 @@ public sealed class ShowtimeService : IShowtimeService
             || existing.BasePrice != basePrice;
         var hasActiveBookingOrHold = await _showtimeRepository.HasActiveBookingOrHoldAsync(
             id, DateTime.UtcNow, cancellationToken);
-        if (hasActiveBookingOrHold && (hasProtectedChanges || manualStatus is not null))
+        if (hasActiveBookingOrHold && hasProtectedChanges)
             return (false, "Showtime has active bookings or seat holds", null);
 
         return await SaveAsync(

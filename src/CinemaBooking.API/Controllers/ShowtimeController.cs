@@ -243,10 +243,8 @@ public sealed class ShowtimeController : ControllerBase
             NotFound(new { success = false, message }),
         "Showtime conflicts with another showtime in the same room"
             or "Another showtime with the same room type already starts at this time in the cinema"
-            or "Showtime has active bookings or seat holds"
-            or "Showtime has successful bookings"
-            or "Showtime has booking or seat hold history"
-            or "Cancelled showtime cannot be updated." =>
+            or         "Showtime has active bookings or seat holds"
+            or "Showtime has booking or seat hold history" =>
             Conflict(new { success = false, message }),
         CinemaScopeMessages.AccessDenied => CinemaScopeForbidden(),
         _ => BadRequest(new { success = false, message })
