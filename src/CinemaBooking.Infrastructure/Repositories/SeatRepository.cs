@@ -289,8 +289,6 @@ public sealed class SeatRepository : ISeatRepository
         IReadOnlyCollection<Seat> seats,
         CancellationToken cancellationToken = default)
     {
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
-
         await _dbContext.Seats
             .Where(seat => seat.RoomID == roomId
                 && seat.IsCurrentLayout)
@@ -305,8 +303,6 @@ public sealed class SeatRepository : ISeatRepository
 
         _dbContext.Seats.AddRange(seats);
         await _dbContext.SaveChangesAsync(cancellationToken);
-
-        await transaction.CommitAsync(cancellationToken);
 
         await RecalculateRoomCapacityAsync(roomId, cancellationToken);
 
