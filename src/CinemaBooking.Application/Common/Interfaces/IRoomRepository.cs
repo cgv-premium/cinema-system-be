@@ -50,4 +50,8 @@ public interface IRoomRepository
     Task<List<Room>> GetRoomsByCinemaIdAsync(
     int cinemaId,
     CancellationToken cancellationToken = default);
+
+    Task<List<Room>> GetRoomsByIdsAsync(
+        List<int> roomIds,
+        CancellationToken cancellationToken = default);
 }
