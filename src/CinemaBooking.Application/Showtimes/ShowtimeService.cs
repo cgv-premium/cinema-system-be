@@ -97,16 +97,10 @@ public sealed class ShowtimeService : IShowtimeService
         if (startTime.Kind != DateTimeKind.Utc)
             return (false, StartTimeMustBeUtcMessage, null);
 
-        var hasProtectedChanges = existing.MovieID != movieId
-            || existing.RoomID != roomId
-            || existing.StartTime != startTime
-            || existing.BasePrice != basePrice;
-        var hasActiveBookingOrHold = await _showtimeRepository.HasActiveBookingOrHoldAsync(
-            id, DateTime.UtcNow, cancellationToken);
-        if (hasActiveBookingOrHold && (hasProtectedChanges || manualStatus is not null and not "cancelled"))
-            return (false, "Showtime has active bookings or seat holds", null);
+        if (existing.Status == "cancelled" && manualStatus is not null and not "cancelled")
+            return (false, "Cancelled showtime cannot be updated.", null);
 
-        if (!hasProtectedChanges && manualStatus == "cancelled")
+        if (manualStatus == "cancelled")
         {
             if (await _showtimeRepository.HasSuccessfulBookingAsync(id, cancellationToken))
                 return (false, "Showtime has successful bookings", null);
@@ -115,10 +109,19 @@ public sealed class ShowtimeService : IShowtimeService
             var cancelled = await _showtimeRepository.UpdateAsync(existing, cancellationToken);
             if (cancelled is null) return (false, "Showtime not found", null);
             await _notificationOutbox.EnqueueShowtimeUpdatedAsync(id,
-                $"Showtime for {existing.Movie.Title} in {existing.Room.RoomName} at {existing.StartTime:HH:mm dd/MM/yyyy} has been deleted.",
+                $"Showtime for {existing.Movie?.Title} in {existing.Room?.RoomName} at {existing.StartTime:HH:mm dd/MM/yyyy} has been deleted.",
                 cancellationToken);
             return (true, null, cancelled);
         }
+
+        var hasProtectedChanges = existing.MovieID != movieId
+            || existing.RoomID != roomId
+            || existing.StartTime != startTime
+            || existing.BasePrice != basePrice;
+        var hasActiveBookingOrHold = await _showtimeRepository.HasActiveBookingOrHoldAsync(
+            id, DateTime.UtcNow, cancellationToken);
+        if (hasActiveBookingOrHold && (hasProtectedChanges || manualStatus is not null))
+            return (false, "Showtime has active bookings or seat holds", null);
 
         return await SaveAsync(
             existing, movieId, roomId, startTime, basePrice, status, managerCinemaId, cancellationToken);

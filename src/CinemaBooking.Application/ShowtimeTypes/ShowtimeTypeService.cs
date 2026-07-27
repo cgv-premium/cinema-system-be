@@ -54,7 +54,6 @@ public sealed class ShowtimeTypeService(IShowtimeTypeRepository repository) : IS
             else if (accepted.Any(x => begin < x.End && finish > x.Start)) (code, reason) = ("SELF_OVERLAP", "Overlap within generated showtimes.");
             else if (await repository.HasConflictAsync(roomId, begin, finish, ct)) (code, reason) = ("ROOM_OVERLAP", "Overlap with existing showtime in the same room.");
             else if (movie.ShowingFrom.HasValue && date < movie.ShowingFrom) (code, reason) = ("MOVIE_NOT_RELEASED", "Movie has not been released.");
-            else if (movie.ShowingTo.HasValue && date > movie.ShowingTo) (code, reason) = ("MOVIE_EXPIRED", "Movie release period has ended.");
             if (code is null) accepted.Add((begin, finish)); items.Add(new(date, begin, finish, code is not null, code, reason, code is null ? (save ? "generated" : "valid") : "skipped"));
         }
         if (save && accepted.Count > 0) await repository.AddShowtimesAsync(accepted.Select(x => new Showtime { MovieID = movieId, RoomID = roomId, ShowtimeTypeID = typeId, StartTime = x.Start, EndTime = x.End, BasePrice = price, Status = "scheduled", CreatedAt = DateTime.UtcNow }), ct);
