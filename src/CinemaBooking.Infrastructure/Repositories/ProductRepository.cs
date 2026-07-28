@@ -40,6 +40,16 @@ public sealed class ProductRepository : IProductRepository
             .FirstOrDefaultAsync(p => p.ItemID == itemId, cancellationToken);
     }
 
+    public Task<List<Product>> GetProductsByIdsAsync(
+        List<int> itemIds,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Products
+            .AsNoTracking()
+            .Where(p => itemIds.Contains(p.ItemID))
+            .ToListAsync(cancellationToken);
+    }
+
     public Task<bool> NameExistsAsync(
         string itemName,
         int? excludingItemId = null,
