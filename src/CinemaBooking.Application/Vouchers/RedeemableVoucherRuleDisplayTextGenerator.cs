@@ -11,7 +11,8 @@ public static class RedeemableVoucherRuleDisplayTextGenerator
         Dictionary<int, string>? cinemaNames = null,
         Dictionary<int, string>? seatTypeNames = null,
         Dictionary<int, string>? tierNames = null,
-        Dictionary<int, string>? roomNames = null)
+        Dictionary<int, string>? roomNames = null,
+        Dictionary<int, string>? productNames = null)
     {
         return ruleType switch
         {
@@ -26,7 +27,7 @@ public static class RedeemableVoucherRuleDisplayTextGenerator
             "FoodAndDrink" => "Chỉ áp dụng khi mua F&B",
             "PaymentMethod" => $"Chỉ áp dụng cho thanh toán bằng {ruleValue}",
             "DayOfWeek" => $"Chỉ áp dụng vào {ruleValue}",
-            "Product" => $"Chỉ áp dụng cho sản phẩm {ruleValue}",
+            "Product" => GetProductDisplayText(ruleValue, productNames),
             "FoodCategory" => $"Chỉ áp dụng cho danh mục F&B {ruleValue}",
             "ApplyScope" => $"Áp dụng cho {ruleValue}",
             _ => $"{ruleType}: {ruleValue}"
@@ -66,6 +67,13 @@ public static class RedeemableVoucherRuleDisplayTextGenerator
         if (int.TryParse(ruleValue, out var roomId) && roomNames?.TryGetValue(roomId, out var name) == true)
             return $"Chỉ áp dụng trong phòng {name}";
         return $"Chỉ áp dụng trong phòng ID {ruleValue}";
+    }
+
+    private static string GetProductDisplayText(string ruleValue, Dictionary<int, string>? productNames)
+    {
+        if (int.TryParse(ruleValue, out var productId) && productNames?.TryGetValue(productId, out var name) == true)
+            return $"Chỉ áp dụng cho sản phẩm {name}";
+        return $"Chỉ áp dụng cho sản phẩm ID {ruleValue}";
     }
 
     private static string FormatCurrency(string value)

@@ -172,6 +172,9 @@ public sealed class ProductGlobalTests
         public Task<Product?> GetByIdAsync(
             int itemId, CancellationToken cancellationToken = default) =>
             Task.FromResult(ExistingProduct);
+        public Task<List<Product>> GetProductsByIdsAsync(
+            List<int> itemIds, CancellationToken cancellationToken = default) =>
+            Task.FromResult(new List<Product>());
         public Task<bool> NameExistsAsync(
             string itemName, int? excludingItemId = null,
             CancellationToken cancellationToken = default)
