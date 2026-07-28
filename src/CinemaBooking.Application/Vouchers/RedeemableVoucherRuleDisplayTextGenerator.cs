@@ -11,7 +11,7 @@ public static class RedeemableVoucherRuleDisplayTextGenerator
         Dictionary<int, string>? cinemaNames = null,
         Dictionary<int, string>? seatTypeNames = null,
         Dictionary<int, string>? tierNames = null,
-        Dictionary<int, string>? roomNames = null,
+        Dictionary<int, string>? roomTypeNames = null,
         Dictionary<int, string>? productNames = null)
     {
         return ruleType switch
@@ -21,7 +21,7 @@ public static class RedeemableVoucherRuleDisplayTextGenerator
             "Movie" => GetMovieDisplayText(ruleValue, movieNames),
             "Cinema" => GetCinemaDisplayText(ruleValue, cinemaNames),
             "SeatType" => GetSeatTypeDisplayText(ruleValue, seatTypeNames),
-            "Room" => GetRoomDisplayText(ruleValue, roomNames),
+            "Room" => GetRoomTypeDisplayText(ruleValue, roomTypeNames),
             "TicketQuantity" => $"Mua tối thiểu {ruleValue} vé",
             "Membership" => GetMembershipDisplayText(ruleValue, tierNames),
             "FoodAndDrink" => "Chỉ áp dụng khi mua F&B",
@@ -62,11 +62,11 @@ public static class RedeemableVoucherRuleDisplayTextGenerator
         return $"Chỉ áp dụng cho thành viên loại {ruleValue}";
     }
 
-    private static string GetRoomDisplayText(string ruleValue, Dictionary<int, string>? roomNames)
+    private static string GetRoomTypeDisplayText(string ruleValue, Dictionary<int, string>? roomTypeNames)
     {
-        if (int.TryParse(ruleValue, out var roomId) && roomNames?.TryGetValue(roomId, out var name) == true)
-            return $"Chỉ áp dụng trong phòng {name}";
-        return $"Chỉ áp dụng trong phòng ID {ruleValue}";
+        if (int.TryParse(ruleValue, out var roomTypeId) && roomTypeNames?.TryGetValue(roomTypeId, out var name) == true)
+            return $"Chỉ áp dụng cho phòng loại {name}";
+        return $"Chỉ áp dụng cho phòng loại ID {ruleValue}";
     }
 
     private static string GetProductDisplayText(string ruleValue, Dictionary<int, string>? productNames)

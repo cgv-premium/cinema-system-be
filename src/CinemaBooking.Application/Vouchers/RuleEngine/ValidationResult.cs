@@ -38,6 +38,7 @@ public sealed class VoucherValidationContext
     public int CinemaId { get; set; }
     public int MovieId { get; set; }
     public int RoomId { get; set; }
+    public int RoomTypeId { get; set; }
     public DateTime ShowtimeDateTime { get; set; }
     public string? MembershipTier { get; set; }
     public List<SeatValidationData> Seats { get; set; } = [];

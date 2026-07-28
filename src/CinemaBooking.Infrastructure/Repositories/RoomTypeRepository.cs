@@ -9,6 +9,8 @@ public sealed class RoomTypeRepository(CinemaBookingDbContext dbContext) : IRoom
 {
     public Task<List<RoomType>> GetAllAsync(CancellationToken cancellationToken = default) =>
         dbContext.RoomTypes.AsNoTracking().OrderBy(x => x.TypeName).ToListAsync(cancellationToken);
+    public Task<List<RoomType>> GetRoomTypesByIdsAsync(List<int> roomTypeIds, CancellationToken cancellationToken = default) =>
+        dbContext.RoomTypes.AsNoTracking().Where(x => roomTypeIds.Contains(x.RoomTypeID)).ToListAsync(cancellationToken);
     public Task<RoomType?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
         dbContext.RoomTypes.AsNoTracking().FirstOrDefaultAsync(x => x.RoomTypeID == id, cancellationToken);
     public Task<bool> NameExistsAsync(string name, int? excludingId = null, CancellationToken cancellationToken = default) =>

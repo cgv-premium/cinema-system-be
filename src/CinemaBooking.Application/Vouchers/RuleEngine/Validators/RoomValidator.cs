@@ -19,10 +19,10 @@ public sealed class RoomValidator : IVoucherRuleValidator
                 "This voucher requires a specific room and cannot be applied to F&B-only orders.");
         }
 
-        var requiredRoomId = rule.RuleValue;
-        var bookingRoomId = context.RoomId.ToString();
+        var requiredRoomTypeId = rule.RuleValue;
+        var bookingRoomTypeId = context.RoomTypeId.ToString();
 
-        if (requiredRoomId != bookingRoomId)
+        if (requiredRoomTypeId != bookingRoomTypeId)
         {
             return ValidationResult.Failure(
                 RuleType,
