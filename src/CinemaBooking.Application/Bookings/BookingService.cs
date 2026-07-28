@@ -516,6 +516,7 @@ public sealed class BookingService : IBookingService
                 CinemaId = showtime?.Room.CinemaID ?? staffCinemaId ?? 0,
                 MovieId = showtime?.MovieID ?? 0,
                 RoomId = showtime?.RoomID ?? 0,
+                RoomTypeId = showtime?.Room.RoomTypeID ?? 0,
                 ShowtimeDateTime = showtime?.StartTime ?? now,
                 MembershipTier = user?.LoyaltyTier?.TierName,
                 Seats = !isFnbOnly ? seatDetails.Select(s => new Vouchers.RuleEngine.SeatValidationData

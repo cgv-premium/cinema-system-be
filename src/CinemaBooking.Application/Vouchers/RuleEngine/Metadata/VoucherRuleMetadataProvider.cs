@@ -33,7 +33,7 @@ public sealed class VoucherRuleMetadataProvider : IVoucherRuleMetadataProvider
             RuleType: VoucherRuleTypes.Room,
             DisplayName: "Room",
             InputType: VoucherRuleInputTypes.Select,
-            DataSource: "/api/rooms"),
+            DataSource: "/api/room-types"),
 
         new VoucherRuleTypeMetadata(
             RuleType: VoucherRuleTypes.SeatType,

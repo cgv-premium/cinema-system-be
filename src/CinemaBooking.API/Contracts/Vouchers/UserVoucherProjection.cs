@@ -15,20 +15,20 @@ public sealed class UserVoucherProjection
     private readonly IMovieRepository _movieRepository;
     private readonly ICinemaRepository _cinemaRepository;
     private readonly ILoyaltyRepository _loyaltyRepository;
-    private readonly IRoomRepository _roomRepository;
+    private readonly IRoomTypeRepository _roomTypeRepository;
     private readonly IProductRepository _productRepository;
 
     public UserVoucherProjection(
         IMovieRepository movieRepository,
         ICinemaRepository cinemaRepository,
         ILoyaltyRepository loyaltyRepository,
-        IRoomRepository roomRepository,
+        IRoomTypeRepository roomTypeRepository,
         IProductRepository productRepository)
     {
         _movieRepository = movieRepository;
         _cinemaRepository = cinemaRepository;
         _loyaltyRepository = loyaltyRepository;
-        _roomRepository = roomRepository;
+        _roomTypeRepository = roomTypeRepository;
         _productRepository = productRepository;
     }
 
@@ -39,11 +39,11 @@ public sealed class UserVoucherProjection
         IEnumerable<UserVoucher> userVouchers,
         CancellationToken ct)
     {
-        var (grouped, _, movieNames, cinemaNames, tierNames, roomNames, productNames) =
+        var (grouped, _, movieNames, cinemaNames, tierNames, roomTypeNames, productNames) =
             await GroupUsableAndLookupNamesAsync(userVouchers, ct);
 
         return grouped
-            .Select(x => MapUserVoucher(x.representative, x.quantity, movieNames, cinemaNames, tierNames, roomNames, productNames))
+            .Select(x => MapUserVoucher(x.representative, x.quantity, movieNames, cinemaNames, tierNames, roomTypeNames, productNames))
             .ToList();
     }
 
@@ -53,11 +53,11 @@ public sealed class UserVoucherProjection
         IEnumerable<UserVoucher> userVouchers,
         CancellationToken ct)
     {
-        var (grouped, now, movieNames, cinemaNames, tierNames, roomNames, productNames) =
+        var (grouped, now, movieNames, cinemaNames, tierNames, roomTypeNames, productNames) =
             await GroupUsableAndLookupNamesAsync(userVouchers, ct);
 
         return grouped
-            .Select(x => MapMyVoucher(x.representative, x.quantity, now, movieNames, cinemaNames, tierNames, roomNames, productNames))
+            .Select(x => MapMyVoucher(x.representative, x.quantity, now, movieNames, cinemaNames, tierNames, roomTypeNames, productNames))
             .ToList();
     }
 
@@ -71,7 +71,7 @@ public sealed class UserVoucherProjection
         Dictionary<int, string> movieNames,
         Dictionary<int, string> cinemaNames,
         Dictionary<int, string> tierNames,
-        Dictionary<int, string> roomNames,
+        Dictionary<int, string> roomTypeNames,
         Dictionary<int, string> productNames)>
         GroupUsableAndLookupNamesAsync(IEnumerable<UserVoucher> userVouchers, CancellationToken ct)
     {
@@ -87,10 +87,10 @@ public sealed class UserVoucherProjection
             .OrderByDescending(x => x.representative.RedeemedAt)
             .ToList();
 
-        var (movieNames, cinemaNames, tierNames, roomNames, productNames) = await BuildRuleNameLookupsAsync(
+        var (movieNames, cinemaNames, tierNames, roomTypeNames, productNames) = await BuildRuleNameLookupsAsync(
             grouped.Select(x => x.representative.Voucher), ct);
 
-        return (grouped, now, movieNames, cinemaNames, tierNames, roomNames, productNames);
+        return (grouped, now, movieNames, cinemaNames, tierNames, roomTypeNames, productNames);
     }
 
     // Build a redeemable-voucher card list from the vouchers themselves (no ownership
@@ -100,17 +100,17 @@ public sealed class UserVoucherProjection
         CancellationToken ct)
     {
         var now = DateTime.UtcNow;
-        var (movieNames, cinemaNames, tierNames, roomNames, productNames) = await BuildRuleNameLookupsAsync(vouchers, ct);
-        return vouchers.Select(v => MapRedeemable(v, now, movieNames, cinemaNames, tierNames, roomNames, productNames)).ToList();
+        var (movieNames, cinemaNames, tierNames, roomTypeNames, productNames) = await BuildRuleNameLookupsAsync(vouchers, ct);
+        return vouchers.Select(v => MapRedeemable(v, now, movieNames, cinemaNames, tierNames, roomTypeNames, productNames)).ToList();
     }
 
-    private async Task<(Dictionary<int, string> movieNames, Dictionary<int, string> cinemaNames, Dictionary<int, string> tierNames, Dictionary<int, string> roomNames, Dictionary<int, string> productNames)>
+    private async Task<(Dictionary<int, string> movieNames, Dictionary<int, string> cinemaNames, Dictionary<int, string> tierNames, Dictionary<int, string> roomTypeNames, Dictionary<int, string> productNames)>
         BuildRuleNameLookupsAsync(IEnumerable<Voucher> vouchers, CancellationToken ct)
     {
         var movieIds = new HashSet<int>();
         var cinemaIds = new HashSet<int>();
         var tierIds = new HashSet<int>();
-        var roomIds = new HashSet<int>();
+        var roomTypeIds = new HashSet<int>();
         var productIds = new HashSet<int>();
 
         foreach (var voucher in vouchers)
@@ -123,8 +123,8 @@ public sealed class UserVoucherProjection
                     cinemaIds.Add(cinemaId);
                 else if (rule.RuleType == "Membership" && int.TryParse(rule.RuleValue, out var tierId))
                     tierIds.Add(tierId);
-                else if (rule.RuleType == "Room" && int.TryParse(rule.RuleValue, out var roomId))
-                    roomIds.Add(roomId);
+                else if (rule.RuleType == "Room" && int.TryParse(rule.RuleValue, out var roomTypeId))
+                    roomTypeIds.Add(roomTypeId);
                 else if (rule.RuleType == "Product" && int.TryParse(rule.RuleValue, out var productId))
                     productIds.Add(productId);
             }
@@ -145,9 +145,9 @@ public sealed class UserVoucherProjection
                 .ToDictionary(t => t.TierID, t => t.TierName)
             : new Dictionary<int, string>();
 
-        var roomNames = roomIds.Any()
-            ? (await _roomRepository.GetRoomsByIdsAsync(roomIds.ToList(), ct))
-                .ToDictionary(r => r.RoomID, r => r.RoomName)
+        var roomTypeNames = roomTypeIds.Any()
+            ? (await _roomTypeRepository.GetRoomTypesByIdsAsync(roomTypeIds.ToList(), ct))
+                .ToDictionary(r => r.RoomTypeID, r => r.TypeName)
             : new Dictionary<int, string>();
 
         var productNames = productIds.Any()
@@ -155,7 +155,7 @@ public sealed class UserVoucherProjection
                 .ToDictionary(p => p.ItemID, p => p.ItemName)
             : new Dictionary<int, string>();
 
-        return (movieNames, cinemaNames, tierNames, roomNames, productNames);
+        return (movieNames, cinemaNames, tierNames, roomTypeNames, productNames);
     }
 
     private static List<RedeemableVoucherRuleResponse> MapVoucherRules(
@@ -163,7 +163,7 @@ public sealed class UserVoucherProjection
         Dictionary<int, string> movieNames,
         Dictionary<int, string> cinemaNames,
         Dictionary<int, string> tierNames,
-        Dictionary<int, string> roomNames,
+        Dictionary<int, string> roomTypeNames,
         Dictionary<int, string> productNames) =>
         (v.VoucherRules ?? [])
             .Select(r => new RedeemableVoucherRuleResponse(
@@ -177,7 +177,7 @@ public sealed class UserVoucherProjection
                     cinemaNames,
                     null,
                     tierNames,
-                    roomNames,
+                    roomTypeNames,
                     productNames)))
             .ToList();
 
@@ -201,7 +201,7 @@ public sealed class UserVoucherProjection
             Dictionary<int, string> movieNames,
             Dictionary<int, string> cinemaNames,
             Dictionary<int, string> tierNames,
-            Dictionary<int, string> roomNames,
+            Dictionary<int, string> roomTypeNames,
             Dictionary<int, string> productNames)
     {
         var v = uv.Voucher;
@@ -211,7 +211,7 @@ public sealed class UserVoucherProjection
             VietnamTime.FromUtc(v.ValidFrom), VietnamTime.FromUtc(v.ValidUntil),
             v.ImageURL, v.Description,
             v.IsActive, v.CreatedAt,
-            MapVoucherRules(v, movieNames, cinemaNames, tierNames, roomNames, productNames),
+            MapVoucherRules(v, movieNames, cinemaNames, tierNames, roomTypeNames, productNames),
             v.IsRedeemable, v.RequiredPoints, v.ExchangeLimit,
             quantity,
             VietnamTime.FromUtc(uv.RedeemedAt), VietnamTime.FromUtc(uv.ExpiredAt),
@@ -225,10 +225,10 @@ public sealed class UserVoucherProjection
         Dictionary<int, string> movieNames,
         Dictionary<int, string> cinemaNames,
         Dictionary<int, string> tierNames,
-        Dictionary<int, string> roomNames,
+        Dictionary<int, string> roomTypeNames,
         Dictionary<int, string> productNames)
     {
-        var f = BuildVoucherFields(uv, quantity, movieNames, cinemaNames, tierNames, roomNames, productNames);
+        var f = BuildVoucherFields(uv, quantity, movieNames, cinemaNames, tierNames, roomTypeNames, productNames);
         return new UserVoucherResponse(
             f.VoucherId, f.VoucherCode, f.DiscountType, f.DiscountValue,
             f.MinOrderValue, f.MaxUses, f.UsedCount,
@@ -248,10 +248,10 @@ public sealed class UserVoucherProjection
         Dictionary<int, string> movieNames,
         Dictionary<int, string> cinemaNames,
         Dictionary<int, string> tierNames,
-        Dictionary<int, string> roomNames,
+        Dictionary<int, string> roomTypeNames,
         Dictionary<int, string> productNames)
     {
-        var f = BuildVoucherFields(uv, quantity, movieNames, cinemaNames, tierNames, roomNames, productNames);
+        var f = BuildVoucherFields(uv, quantity, movieNames, cinemaNames, tierNames, roomTypeNames, productNames);
         return new MyVoucherResponse(
             f.VoucherId, f.VoucherCode, f.DiscountType, f.DiscountValue,
             f.MinOrderValue, f.MaxUses, f.UsedCount,
@@ -281,7 +281,7 @@ public sealed class UserVoucherProjection
         Dictionary<int, string> movieNames,
         Dictionary<int, string> cinemaNames,
         Dictionary<int, string> tierNames,
-        Dictionary<int, string> roomNames,
+        Dictionary<int, string> roomTypeNames,
         Dictionary<int, string> productNames) => new(
         v.VoucherID,
         v.VoucherCode,
@@ -297,7 +297,7 @@ public sealed class UserVoucherProjection
         v.IsActive,
         VoucherLifecycleStatus(v, currentTime),
         v.CreatedAt,
-        MapVoucherRules(v, movieNames, cinemaNames, tierNames, roomNames, productNames),
+        MapVoucherRules(v, movieNames, cinemaNames, tierNames, roomTypeNames, productNames),
         v.IsRedeemable,
         v.RequiredPoints!.Value,
         v.ExchangeLimit,
