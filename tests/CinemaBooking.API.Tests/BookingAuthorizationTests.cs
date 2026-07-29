@@ -167,6 +167,9 @@ public sealed class BookingAuthorizationTests
         public Task<(int? ReviewId, bool HasReview)> GetBookingReviewLookupAsync(int bookingId, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task<IReadOnlyDictionary<int, int>> GetReviewIdsByBookingIdsAsync(IReadOnlyCollection<int> bookingIds, CancellationToken cancellationToken = default) => throw new NotSupportedException();
         public Task<(IReadOnlyList<AdminReviewListItem> Items, int Total)> SearchAdminReviewsAsync(string? keyword, int? movieId, AdminReviewStatusFilter status, int page, int pageSize, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<(IReadOnlyList<MovieReviewDashboardItem> Items, int TotalItems)> GetMovieReviewDashboardAsync(string? searchTitle, DateTime? fromUtc, DateTime? toUtc, double? minAverageRating, double? maxAverageRating, string sortBy, bool descending, int page, int pageSize, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<MovieReviewStats> GetMovieReviewStatsByDateRangeAsync(int movieId, DateTime? fromUtc, DateTime? toUtc, int? minRating, int? maxRating, CancellationToken cancellationToken = default) => throw new NotSupportedException();
+        public Task<(IReadOnlyList<ReviewDetailItem> Items, int TotalItems)> GetMovieReviewsDetailedByDateRangeAsync(int movieId, DateTime? fromUtc, DateTime? toUtc, int? minRating, int? maxRating, int page, int pageSize, CancellationToken cancellationToken = default) => throw new NotSupportedException();
     }
 
     private sealed class StubLoyaltyRepository : ILoyaltyRepository

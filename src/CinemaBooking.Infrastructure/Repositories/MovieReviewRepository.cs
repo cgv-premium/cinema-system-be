@@ -260,4 +260,177 @@ public sealed class MovieReviewRepository : IMovieReviewRepository
 
         return (items, total);
     }
+
+    public async Task<(IReadOnlyList<MovieReviewDashboardItem> Items, int TotalItems)> GetMovieReviewDashboardAsync(
+        string? searchTitle,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        double? minAverageRating,
+        double? maxAverageRating,
+        string sortBy,
+        bool descending,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var reviewQuery = _db.MovieReviews.AsNoTracking().Where(r => !r.IsHidden);
+        if (fromUtc.HasValue)
+        {
+            reviewQuery = reviewQuery.Where(r => r.CreatedAt >= fromUtc.Value);
+        }
+        if (toUtc.HasValue)
+        {
+            reviewQuery = reviewQuery.Where(r => r.CreatedAt < toUtc.Value);
+        }
+
+        var moviesQuery = _db.Movie.AsNoTracking().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(searchTitle))
+        {
+            var pattern = $"%{searchTitle.Trim()}%";
+            moviesQuery = moviesQuery.Where(m => EF.Functions.Like(m.Title, pattern));
+        }
+
+        var intermediate = moviesQuery
+            .Select(m => new
+            {
+                MovieId = m.MovieID,
+                MovieTitle = m.Title,
+                PosterUrl = m.PosterURL,
+                TotalReviews = reviewQuery.Count(r => r.MovieId == m.MovieID),
+                AverageRating = reviewQuery.Where(r => r.MovieId == m.MovieID).Any()
+                    ? (double?)reviewQuery.Where(r => r.MovieId == m.MovieID).Average(r => (double)r.Rating)
+                    : null,
+                FiveStarCount = reviewQuery.Count(r => r.MovieId == m.MovieID && r.Rating == 5),
+                FourStarCount = reviewQuery.Count(r => r.MovieId == m.MovieID && r.Rating == 4),
+                ThreeStarCount = reviewQuery.Count(r => r.MovieId == m.MovieID && r.Rating == 3),
+                TwoStarCount = reviewQuery.Count(r => r.MovieId == m.MovieID && r.Rating == 2),
+                OneStarCount = reviewQuery.Count(r => r.MovieId == m.MovieID && r.Rating == 1),
+                LatestReviewDate = reviewQuery.Where(r => r.MovieId == m.MovieID).Any()
+                    ? (DateTime?)reviewQuery.Where(r => r.MovieId == m.MovieID).Max(r => r.CreatedAt)
+                    : null
+            });
+
+        if (minAverageRating.HasValue)
+        {
+            intermediate = intermediate.Where(x => x.AverageRating.HasValue && x.AverageRating.Value >= minAverageRating.Value);
+        }
+        if (maxAverageRating.HasValue)
+        {
+            intermediate = intermediate.Where(x => x.AverageRating.HasValue && x.AverageRating.Value <= maxAverageRating.Value);
+        }
+
+        intermediate = (sortBy, descending) switch
+        {
+            ("newestreview", true) => intermediate.OrderByDescending(x => x.LatestReviewDate).ThenByDescending(x => x.MovieId),
+            ("newestreview", false) => intermediate.OrderBy(x => x.LatestReviewDate).ThenBy(x => x.MovieId),
+            ("highestrating", _) => intermediate.OrderByDescending(x => x.AverageRating).ThenByDescending(x => x.TotalReviews).ThenBy(x => x.MovieId),
+            ("lowestrating", _) => intermediate.OrderBy(x => x.AverageRating).ThenByDescending(x => x.TotalReviews).ThenBy(x => x.MovieId),
+            ("mostreviews", true) => intermediate.OrderByDescending(x => x.TotalReviews).ThenByDescending(x => x.MovieId),
+            ("mostreviews", false) => intermediate.OrderBy(x => x.TotalReviews).ThenBy(x => x.MovieId),
+            ("moviename", true) => intermediate.OrderByDescending(x => x.MovieTitle).ThenBy(x => x.MovieId),
+            ("moviename", false) => intermediate.OrderBy(x => x.MovieTitle).ThenBy(x => x.MovieId),
+            _ => intermediate.OrderByDescending(x => x.LatestReviewDate).ThenByDescending(x => x.MovieId)
+        };
+
+        var totalItems = await intermediate.CountAsync(cancellationToken);
+
+        var rawItems = await intermediate
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        var items = rawItems.ConvertAll(x => new MovieReviewDashboardItem(
+            x.MovieId,
+            x.MovieTitle,
+            x.PosterUrl,
+            x.TotalReviews,
+            x.AverageRating.HasValue ? Math.Round(x.AverageRating.Value, 1) : null,
+            x.FiveStarCount,
+            x.FourStarCount,
+            x.ThreeStarCount,
+            x.TwoStarCount,
+            x.OneStarCount,
+            x.LatestReviewDate));
+
+        return (items, totalItems);
+    }
+
+    public async Task<MovieReviewStats> GetMovieReviewStatsByDateRangeAsync(
+        int movieId,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        int? minRating,
+        int? maxRating,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _db.MovieReviews.AsNoTracking().Where(r => r.MovieId == movieId && !r.IsHidden);
+        if (fromUtc.HasValue) query = query.Where(r => r.CreatedAt >= fromUtc.Value);
+        if (toUtc.HasValue) query = query.Where(r => r.CreatedAt < toUtc.Value);
+        if (minRating.HasValue) query = query.Where(r => r.Rating >= minRating.Value);
+        if (maxRating.HasValue) query = query.Where(r => r.Rating <= maxRating.Value);
+
+        var buckets = await query
+            .GroupBy(r => r.Rating)
+            .Select(g => new { Rating = g.Key, Count = g.Count() })
+            .ToListAsync(cancellationToken);
+
+        var breakdown = new Dictionary<int, int> { { 5, 0 }, { 4, 0 }, { 3, 0 }, { 2, 0 }, { 1, 0 } };
+        var total = 0;
+        var weightedSum = 0L;
+
+        foreach (var bucket in buckets)
+        {
+            if (breakdown.ContainsKey(bucket.Rating))
+            {
+                breakdown[bucket.Rating] = bucket.Count;
+            }
+            total += bucket.Count;
+            weightedSum += (long)bucket.Rating * bucket.Count;
+        }
+
+        if (total == 0)
+        {
+            return new MovieReviewStats(null, 0, breakdown);
+        }
+
+        var average = Math.Round(weightedSum / (double)total, 1);
+        return new MovieReviewStats(average, total, breakdown);
+    }
+
+    public async Task<(IReadOnlyList<ReviewDetailItem> Items, int TotalItems)> GetMovieReviewsDetailedByDateRangeAsync(
+        int movieId,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        int? minRating,
+        int? maxRating,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = _db.MovieReviews.AsNoTracking().Where(r => r.MovieId == movieId && !r.IsHidden);
+        if (fromUtc.HasValue) query = query.Where(r => r.CreatedAt >= fromUtc.Value);
+        if (toUtc.HasValue) query = query.Where(r => r.CreatedAt < toUtc.Value);
+        if (minRating.HasValue) query = query.Where(r => r.Rating >= minRating.Value);
+        if (maxRating.HasValue) query = query.Where(r => r.Rating <= maxRating.Value);
+
+        var totalItems = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .OrderByDescending(r => r.CreatedAt)
+            .ThenByDescending(r => r.ReviewId)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .Select(r => new ReviewDetailItem(
+                r.ReviewId,
+                r.UserId,
+                r.User!.FullName,
+                r.User!.AvatarURL,
+                r.BookingId,
+                r.CreatedAt,
+                r.Rating,
+                r.Comment))
+            .ToListAsync(cancellationToken);
+
+        return (items, totalItems);
+    }
 }
