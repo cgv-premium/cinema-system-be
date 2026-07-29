@@ -48,4 +48,34 @@ public interface IMovieReviewRepository
         int page,
         int pageSize,
         CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<MovieReviewDashboardItem> Items, int TotalItems)> GetMovieReviewDashboardAsync(
+        string? searchTitle,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        double? minAverageRating,
+        double? maxAverageRating,
+        string sortBy,
+        bool descending,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<MovieReviewStats> GetMovieReviewStatsByDateRangeAsync(
+        int movieId,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        int? minRating,
+        int? maxRating,
+        CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<ReviewDetailItem> Items, int TotalItems)> GetMovieReviewsDetailedByDateRangeAsync(
+        int movieId,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        int? minRating,
+        int? maxRating,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }
