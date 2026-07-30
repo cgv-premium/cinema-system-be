@@ -91,6 +91,19 @@ public sealed class VoucherRepository : IVoucherRepository
             .ToListAsync(ct);
     }
 
+    public async Task<List<Voucher>> GetActiveVouchersAsync(CancellationToken ct)
+    {
+        var now = DateTime.UtcNow;
+        return await _db.Vouchers
+            .AsNoTracking()
+            .Include(v => v.VoucherRules)
+            .Where(v => v.IsActive
+                && v.ValidFrom <= now
+                && v.ValidUntil >= now)
+            .OrderByDescending(v => v.CreatedAt)
+            .ToListAsync(ct);
+    }
+
     public Task<Voucher?> GetForRedemptionAsync(int voucherId, CancellationToken ct) =>
         _db.Vouchers.FirstOrDefaultAsync(v => v.VoucherID == voucherId, ct);
 

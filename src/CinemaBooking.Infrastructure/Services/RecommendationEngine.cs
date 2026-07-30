@@ -30,7 +30,7 @@ public sealed class RecommendationEngine : IRecommendationEngine
         int maxResults = 5,
         CancellationToken cancellationToken = default)
     {
-        var movies = await _movieRepository.GetMoviesAsync("now_showing", [], null, cancellationToken);
+        var movies = await _movieRepository.GetMoviesAsync(null, [], null, cancellationToken);
 
         var movieIds = movies.Select(m => m.MovieID).ToList();
         var statsMap = await _reviewRepository.GetVisibleStatsForMoviesAsync(movieIds, cancellationToken);

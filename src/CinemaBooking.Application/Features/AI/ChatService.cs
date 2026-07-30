@@ -22,6 +22,7 @@ public sealed class ChatService : IChatService
     private readonly IVoucherRepository _voucherRepository;
     private readonly IGenreRepository _genreRepository;
     private readonly ICinemaRepository _cinemaRepository;
+    private readonly IMovieRepository _movieRepository;
     private readonly IProductRepository _productRepository;
     private readonly ILogger<ChatService> _logger;
 
@@ -38,6 +39,7 @@ public sealed class ChatService : IChatService
         IVoucherRepository voucherRepository,
         IGenreRepository genreRepository,
         ICinemaRepository cinemaRepository,
+        IMovieRepository movieRepository,
         IProductRepository productRepository,
         ILogger<ChatService> logger)
     {
@@ -53,6 +55,7 @@ public sealed class ChatService : IChatService
         _voucherRepository = voucherRepository;
         _genreRepository = genreRepository;
         _cinemaRepository = cinemaRepository;
+        _movieRepository = movieRepository;
         _productRepository = productRepository;
         _logger = logger;
     }
@@ -85,9 +88,12 @@ public sealed class ChatService : IChatService
         var conversationSession = _conversationStore.GetOrCreate(request.SessionId);
 
         // Step 4: Build user profile context
-        var userProfileContext = isAuth
-            ? await BuildUserContextAsync(userId!.Value, cancellationToken)
-            : null;
+        string? userProfileContext = null;
+        if (isAuth)
+        {
+            conversationSession.UserId = userId;
+            userProfileContext = await BuildUserContextAsync(userId!.Value, cancellationToken);
+        }
 
         // Step 5: Build prompt based on intent
         var prompt = intent.Intent switch
@@ -203,9 +209,7 @@ public sealed class ChatService : IChatService
         CancellationToken ct)
     {
         var sb = new StringBuilder();
-        var vouchers = await _voucherRepository.GetRedeemableVouchersAsync(ct);
-        var now = DateTime.UtcNow;
-        var activeVouchers = vouchers.Where(v => v.IsActive && v.ValidFrom <= now && v.ValidUntil >= now).ToList();
+        var activeVouchers = await _voucherRepository.GetActiveVouchersAsync(ct);
 
         sb.AppendLine("--- ACTIVE VOUCHERS & PROMOTIONS (complete list) ---");
         if (activeVouchers.Count == 0)
@@ -264,7 +268,6 @@ public sealed class ChatService : IChatService
         CancellationToken ct)
     {
         var sb = new StringBuilder();
-        var movies = await _productRepository.GetAvailableProductsAsync(ct);
         var cinemas = await _cinemaRepository.GetActiveCinemasAsync(ct);
 
         sb.AppendLine("--- CINEMA LOCATIONS (complete list) ---");
@@ -275,18 +278,15 @@ public sealed class ChatService : IChatService
         sb.AppendLine($"[END OF LOCATIONS — {cinemas.Count} location(s)]");
         sb.AppendLine();
         sb.AppendLine("--- NOW SHOWING MOVIES (complete list) ---");
-        var nowShowing = GetMoviesForGeneralAsync();
-        foreach (var m in nowShowing)
+        var nowShowingMovies = await _movieRepository.GetMoviesAsync("now_showing", [], null, ct);
+        foreach (var m in nowShowingMovies)
         {
-            sb.AppendLine($"- {m}");
+            sb.AppendLine($"- {m.Title} | {m.DurationMin} min | {m.AgeRating} | {string.Join(", ", m.MovieGenres.Select(mg => mg.Genre?.GenreName ?? ""))}");
         }
+        if (nowShowingMovies.Count == 0)
+            sb.AppendLine("No movies currently showing.");
 
         return _promptBuilder.BuildGeneralPrompt(sb.ToString(), session, userMessage, isAuth, userProfileContext);
-    }
-
-    private static List<string> GetMoviesForGeneralAsync()
-    {
-        return ["Currently showing movies available on our website"];
     }
 
     private static int? GetUserId(ClaimsPrincipal? user)
@@ -298,8 +298,7 @@ public sealed class ChatService : IChatService
 
     private static int? GetUserIdFromSession(ConversationSession session)
     {
-        // For now, return null - user ID is extracted from ClaimsPrincipal in ChatAsync
-        return null;
+        return session.UserId;
     }
 
     private async Task<string> BuildUserContextAsync(int userId, CancellationToken ct)

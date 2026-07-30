@@ -46,6 +46,7 @@ public sealed class VoucherServiceTests
         public Task<Voucher> SaveWithRulesAsync(Voucher voucher, bool isNew, IReadOnlyList<VoucherRule> newRules, AdminActionLog log, CancellationToken ct) { voucher.VoucherID = 1; return Task.FromResult(voucher); }
         public Task<bool> DeactivateAsync(int id, AdminActionLog log, CancellationToken ct) => Task.FromResult(true);
         public Task<List<Voucher>> GetRedeemableVouchersAsync(CancellationToken ct) => Task.FromResult(new List<Voucher>());
+        public Task<List<Voucher>> GetActiveVouchersAsync(CancellationToken ct) => Task.FromResult(new List<Voucher>());
         public Task<Voucher?> GetForRedemptionAsync(int voucherId, CancellationToken ct) => Task.FromResult<Voucher?>(null);
         public Task<int> GetUserRedemptionCountAsync(int userId, int voucherId, CancellationToken ct) => Task.FromResult(0);
         public Task IncrementPublicVoucherUsageForBookingAsync(int bookingId, CancellationToken ct) => Task.CompletedTask;
